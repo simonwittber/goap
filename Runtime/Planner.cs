@@ -12,14 +12,28 @@ namespace GOAP
 
         public ActionPlan currentPlan;
 
-        public void FindActionsThatAchieve(WorldState goal, List<Action> results)
+
+        public static void FindActionsThatAchieve(WorldState goal, List<Action> availableActions, List<Action> results)
         {
-            for (var i = 0; i < actionSet.Length; i++)
+            for (var i = 0; i < availableActions.Count; i++)
             {
-                if (actionSet[i].effect.DoesSatisfyGoal(goal))
-                    results.Add(actionSet[i]);
+                if (availableActions[i].effect.DoesSatisify(goal))
+                    results.Add(availableActions[i]);
             }
-            results.Sort((A, B) => A.cost.CompareTo(B.cost));
+        }
+
+        public static void FindActionsThatCanRun(WorldState currentState, List<Action> availableActions, List<Action> results)
+        {
+            for (var i = 0; i < availableActions.Count; i++)
+            {
+                if (availableActions[i].precondition.DoesSatisify(currentState))
+                    results.Add(availableActions[i]);
+            }
+        }
+
+        public void SortActionListByCost(List<Action> actions)
+        {
+            actions.Sort((A, B) => A.cost.CompareTo(B.cost));
         }
 
         public void CreatePlan(WorldState currentState, int goalIndex)

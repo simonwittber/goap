@@ -12,7 +12,7 @@ namespace GOAP
 
         public bool CanExecute(WorldState currentState)
         {
-            if (currentState.DoesSatisfyCondition(precondition))
+            if (currentState.DoesSatisify(precondition))
             {
                 proceduralPrecondition.Invoke();
                 return proceduralPrecondition.Result;

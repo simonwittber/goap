@@ -3,25 +3,43 @@ using System.Collections.Generic;
 namespace GOAP
 {
     [System.Serializable]
-    public struct WorldState
+    public class WorldState
     {
+        public Dictionary<int, int> states = new Dictionary<int, int>();
 
-        public bool DoesSatisfyCondition(WorldState condition)
+        /// <summary>
+        /// Apply states from other to self.
+        /// </summary>
+        /// <param name="other"></param>
+        public void ApplyEffect(WorldState other)
         {
-            //TODO
-            return true;
+            foreach (var k in other.states.Keys)
+            {
+                states[k] = other.states[k];
+            }
         }
 
-        public bool DoesSatisfyGoal(WorldState goal)
+        /// <summary>
+        /// Does this state satisfy requirements of other state?
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public bool DoesSatisify(WorldState other)
         {
-            //TODO
+            foreach (var k in other.states.Keys)
+            {
+                int value;
+                if (states.TryGetValue(k, out value))
+                {
+                    if (states[k] < value)
+                    {
+                        return false;
+                    }
+                }
+                else
+                    return false;
+            }
             return true;
-        }
-
-        public WorldState ApplyEffect(WorldState effect)
-        {
-            //TODO
-            return effect;
         }
 
     }
