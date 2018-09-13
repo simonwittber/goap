@@ -1,21 +1,22 @@
-using DifferentMethods.Univents;
+// using DifferentMethods.Univents;
 
 namespace GOAP
 {
+
     [System.Serializable]
-    public struct Action
+    public class Action
     {
         public float cost;
         public WorldState precondition;
         public WorldState effect;
-        public PredicateList proceduralPrecondition;
+        // public PredicateList proceduralPrecondition;
 
         public bool CanExecute(WorldState currentState)
         {
             if (currentState.DoesSatisify(precondition))
             {
-                proceduralPrecondition.Invoke();
-                return proceduralPrecondition.Result;
+                // proceduralPrecondition.Invoke();
+                // return proceduralPrecondition.Result;
             }
             return false;
         }

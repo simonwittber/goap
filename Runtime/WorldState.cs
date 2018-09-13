@@ -1,46 +1,58 @@
+using System;
 using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace GOAP
 {
     [System.Serializable]
     public class WorldState
     {
-        public Dictionary<int, int> states = new Dictionary<int, int>();
-
-        /// <summary>
-        /// Apply states from other to self.
-        /// </summary>
-        /// <param name="other"></param>
-        public void ApplyEffect(WorldState other)
+        public enum State
         {
-            foreach (var k in other.states.Keys)
+            EMPTY, TRUE, FALSE
+        }
+
+        [SerializeField] State[] values;
+
+        public WorldState(int size)
+        {
+            values = new State[size];
+        }
+
+        public bool IsEmpty(int index) => values[index] == State.EMPTY;
+        public bool IsTrue(int index) => values[index] == State.TRUE;
+        public bool IsFalse(int index) => values[index] == State.FALSE;
+        public void SetEmpty(int index) => values[index] = State.EMPTY;
+        public void SetTrue(int index) => values[index] = State.TRUE;
+        public void SetFalse(int index) => values[index] = State.FALSE;
+
+        public void ApplyState(WorldState other)
+        {
+            for (var i = 0; i < values.Length; i++)
             {
-                states[k] = other.states[k];
+                if (!other.IsEmpty(i))
+                    values[i] = other.values[i];
             }
         }
 
-        /// <summary>
-        /// Does this state satisfy requirements of other state?
-        /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
         public bool DoesSatisify(WorldState other)
         {
-            foreach (var k in other.states.Keys)
+            for (var i = 0; i < values.Length; i++)
             {
-                int value;
-                if (states.TryGetValue(k, out value))
+                //if the condition exists in other.
+                if (!other.IsEmpty(i))
                 {
-                    if (states[k] < value)
-                    {
+                    //if I do not have that condition, early exit.
+                    if (IsEmpty(i))
                         return false;
-                    }
+                    //If my value does not reach condition, early exit.
+                    if (values[i] != other.values[i])
+                        return false;
                 }
-                else
-                    return false;
             }
             return true;
         }
-
     }
+
 }

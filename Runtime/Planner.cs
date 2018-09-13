@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace GOAP
@@ -8,41 +10,72 @@ namespace GOAP
     public class Planner : ScriptableObject
     {
         public WorldState[] goals;
-        public Action[] actionSet;
+        public List<Action> actionSet;
 
         public ActionPlan currentPlan;
+        public AStar<Action> actionGraph;
 
-
-        public static void FindActionsThatAchieve(WorldState goal, List<Action> availableActions, List<Action> results)
+        void OnEnable()
         {
-            for (var i = 0; i < availableActions.Count; i++)
-            {
-                if (availableActions[i].effect.DoesSatisify(goal))
-                    results.Add(availableActions[i]);
-            }
+            actionGraph = new AStar<Action>();
+            actionGraph.GetConnectedNodes = GetConnectedNodes;
+            actionGraph.CalculateMoveCost = CalculateMoveCost;
         }
 
-        public static void FindActionsThatCanRun(WorldState currentState, List<Action> availableActions, List<Action> results)
+        float CalculateMoveCost(Action src, Action dst)
         {
-            for (var i = 0; i < availableActions.Count; i++)
-            {
-                if (availableActions[i].precondition.DoesSatisify(currentState))
-                    results.Add(availableActions[i]);
-            }
+            return dst.cost;
         }
 
-        public void SortActionListByCost(List<Action> actions)
+        IEnumerable<Action> GetConnectedNodes(Action goal)
         {
-            actions.Sort((A, B) => A.cost.CompareTo(B.cost));
+            foreach (var action in actionSet)
+            {
+                if (action.effect.DoesSatisify(goal.precondition))
+                    yield return action;
+            }
         }
 
         public void CreatePlan(WorldState currentState, int goalIndex)
         {
-            currentPlan = new ActionPlan();
-            currentPlan.goal = goals[goalIndex];
-            // TODO
-            // Given goal state, search backwards to find currentState, 
-            // collecting actions into a list.
+            //given a current state, there are many actions that may have the precondition for that state.
+            var plans = new List<ActionPlan>();
+            var route = new List<Action>();
+            foreach (var endAction in NodesThatCanCreateState(goals[goalIndex]))
+            {
+                //given a goal, there are many actions that may create that state.
+                foreach (var startAction in NodesThatCanExecuteWithState(currentState))
+                {
+                    if (actionGraph.Route(endAction, startAction, actionSet, route))
+                    {
+                        var plan = new ActionPlan(goals[goalIndex], currentState, route);
+                        plans.Add(plan);
+                    }
+                }
+            }
+            if (plans.Count > 0)
+            {
+                plans.Sort((A, B) => A.cost.CompareTo(B.cost));
+                currentPlan = plans[0];
+            }
+        }
+
+        IEnumerable<Action> NodesThatCanExecuteWithState(WorldState state)
+        {
+            foreach (var action in actionSet)
+            {
+                if (state.DoesSatisify(action.precondition))
+                    yield return action;
+            }
+        }
+
+        IEnumerable<Action> NodesThatCanCreateState(WorldState state)
+        {
+            foreach (var action in actionSet)
+            {
+                if (action.effect.DoesSatisify(state))
+                    yield return action;
+            }
         }
 
         public void ExecutePlan(WorldState currentState)
