@@ -4,7 +4,7 @@ using System.Linq;
 namespace GOAP
 {
     [System.Serializable]
-    public class ActionPlan
+    public class Plan
     {
         public readonly WorldState goal;
         public readonly WorldState initialState;
@@ -18,7 +18,7 @@ namespace GOAP
             index = 0;
         }
 
-        public ActionPlan(WorldState goal, WorldState initialState, IList<Action> actions)
+        public Plan(WorldState goal, WorldState initialState, IList<Action> actions)
         {
             this.goal = goal;
             this.initialState = initialState;
@@ -32,7 +32,7 @@ namespace GOAP
 
         public bool Execute(WorldState currentState)
         {
-            var isComplete = actions[index].Execute(currentState);
+            var isComplete = actions[index].Execute();
             if (isComplete)
             {
                 currentState.ApplyState(actions[index].effect);

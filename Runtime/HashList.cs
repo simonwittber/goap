@@ -6,34 +6,59 @@ using System;
 
 namespace GOAP
 {
-    /// <summary>
-    /// A HashList is like a normal List, but with a O(1) Contains method, which comes at the expense of using 2x memory.
-    /// </summary>
-    public class HashList<T> : List<T>
+    public class HashList<T>
     {
-        HashSet<T> itemSet = new HashSet<T>();
+        List<T> list = new List<T>();
+        HashSet<T> hashSet = new HashSet<T>();
 
-        public new void Add(T item)
+        public int Count { get => list.Count; }
+
+        public T this[int key]
         {
-            base.Add(item);
-            itemSet.Add(item);
+            get => list[key];
+            set
+            {
+                list[key] = value;
+                hashSet.Add(value);
+            }
         }
 
-        public new void Remove(T item)
+        public List<T> ToList()
         {
-            base.Remove(item);
-            itemSet.Remove(item);
+            return list.ToList();
         }
 
-        public new bool Contains(T item)
+        public T[] ToArray()
         {
-            return itemSet.Contains(item);
+            return list.ToArray();
         }
 
-        public new void Clear()
+        public Dictionary<K, T> ToDictionary<K>(System.Func<T, K> keySelector)
         {
-            base.Clear();
-            itemSet.Clear();
+            return list.ToDictionary(keySelector);
+        }
+
+        public void Add(T item)
+        {
+            if (hashSet.Add(item))
+                list.Add(item);
+        }
+
+        public void Remove(T item)
+        {
+            list.Remove(item);
+            hashSet.Remove(item);
+        }
+
+        public bool Contains(T item)
+        {
+            return hashSet.Contains(item);
+        }
+
+        public void Clear()
+        {
+            list.Clear();
+            hashSet.Clear();
         }
     }
 }

@@ -41,6 +41,7 @@ namespace GOAP
                 parent[s] = null;
                 inPath[s] = false;
             }
+
             openset.Clear();
             closedset.Clear();
             path.Clear();
@@ -58,7 +59,7 @@ namespace GOAP
                         current = openset[i];
                     }
                 }
-                //openset.Sort ((a,b) => g [a].CompareTo (g [b]));
+
                 current = openset[0];
                 if (current == end)
                 {

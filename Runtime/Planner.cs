@@ -12,7 +12,7 @@ namespace GOAP
         public WorldState[] goals;
         public List<Action> actionSet;
 
-        public ActionPlan currentPlan;
+        public Plan currentPlan;
         public AStar<Action> actionGraph;
 
         void OnEnable()
@@ -39,7 +39,7 @@ namespace GOAP
         public void CreatePlan(WorldState currentState, int goalIndex)
         {
             //given a current state, there are many actions that may have the precondition for that state.
-            var plans = new List<ActionPlan>();
+            var plans = new List<Plan>();
             var route = new List<Action>();
             foreach (var endAction in NodesThatCanCreateState(goals[goalIndex]))
             {
@@ -48,7 +48,7 @@ namespace GOAP
                 {
                     if (actionGraph.Route(endAction, startAction, actionSet, route))
                     {
-                        var plan = new ActionPlan(goals[goalIndex], currentState, route);
+                        var plan = new Plan(goals[goalIndex], currentState, route);
                         plans.Add(plan);
                     }
                 }

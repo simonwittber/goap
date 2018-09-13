@@ -1,29 +1,27 @@
-// using DifferentMethods.Univents;
-
 namespace GOAP
 {
-
     [System.Serializable]
     public class Action
     {
         public float cost;
         public WorldState precondition;
         public WorldState effect;
-        // public PredicateList proceduralPrecondition;
+        public System.Func<bool> proceduralPrecondition;
+        public System.Func<bool> worker;
 
         public bool CanExecute(WorldState currentState)
         {
             if (currentState.DoesSatisify(precondition))
             {
-                // proceduralPrecondition.Invoke();
-                // return proceduralPrecondition.Result;
+                if (proceduralPrecondition != null)
+                    return proceduralPrecondition.Invoke();
+                else
+                    return true;
             }
             return false;
         }
 
-        public bool Execute(WorldState currentState)
-        {
-            return true;
-        }
+        public bool Execute() => worker.Invoke();
+
     }
 }
